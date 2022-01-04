@@ -1,0 +1,9 @@
+export const PORT = 8000;
+// export const HOST = "YOUR_HOSTNAME";
+// export const USER = "YOUR_USERNAME";
+// export const PASSWORD = "YOUR_PASSWORD";
+// export const DATABASE = "YOUR_DATABASE";
+export const HOST = "localhost";
+export const USER = "xiayi";
+export const PASSWORD = "1928yI2333!";
+export const DATABASE = "webin_relogin";

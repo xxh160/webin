@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Hell</title>
+    <link href="css/common.css" rel="stylesheet">
+    <link href="css/form.css" rel="stylesheet">
+</head>
+<style>
+    .gallary {
+        width: 80%;
+        margin: 5% auto;
+        padding: 20px;
+        border: 0;
+        border-radius: 10px;
+        background-color: #00000060;
+        column-count: 1;
+    }
+    
+    .item {
+        padding: 15px;
+        margin: 5px;
+        position: relative;
+        counter-increment: count;
+        border-radius: 15px;
+    }
+    
+    .item h1 {
+        color: aliceblue;
+        font-size: 30px;
+        font-weight: 700;
+        padding-bottom: 20px;
+    }
+    
+    .item img {
+        width: 100%;
+        height: auto;
+        display: none;
+    }
+</style>
+
+<body>
+    <header>
+        <div class="title">Hell</div>
+    </header>
+    <div class="gallary">
+        <div class="item">
+            <h1>origin</h1>
+            <img id="origin" src="img/photo.jpeg" alt="">
+            <canvas width="800" height="600"></canvas>
+        </div>
+        <div class="item">
+            <h1>sign</h1>
+            <img id="sign" src="img/sign.png" alt="">
+            <canvas width="800" height="600"></canvas>
+        </div>
+        <div class="item">
+            <h1>with visible watermask</h1>
+            <canvas width="800" height="600"></canvas>
+        </div>
+        <div class="item">
+            <h1>with invisible watermask</h1>
+            <canvas width="800" height="600"></canvas>
+        </div>
+        <div class="item">
+            <h1>extracted watermask</h1>
+            <canvas width="800" height="600"></canvas>
+        </div>
+    </div>
+</body>
+
+<script>
+    // all convas.context
+    let ctxs = Array.prototype.map.call(document.querySelectorAll('canvas'), n => n.getContext('2d'));
+    // img 在 sign 之前 load
+    window.onload = () => {
+        let img = document.getElementById('origin');
+        let sign = document.getElementById('sign');
+        let w = ctxs[0].canvas.clientWidth,
+            h = ctxs[0].canvas.clientHeight;
+        // 原图
+        ctxs[0].drawImage(img, 0, 0, w, h);
+        // sign
+        ctxs[1].drawImage(sign, 0, 0, w, h);
+        // visible
+        ctxs[2].drawImage(img, 0, 0, w, h);
+        ctxs[2].drawImage(sign, 0, 0, w, h);
+        // invisible
+        ctxs[3].drawImage(img, 0, 0, w, h);
+        // 待处理图片数据
+        // 这里应该是拷贝吧
+        let origin = ctxs[3].getImageData(0, 0, w, h);
+        let origind = origin.data;
+        // 水印数据
+        let signd = ctxs[1].getImageData(0, 0, w, h).data;
+        // 选择红色通道进行处理
+        // RGB 中第一个是 R
+        let bit = 0;
+        // 0 + 3 = 3 => 透明度位 alpha
+        let offset = 3;
+        for (let i = 0; i < origind.length; ++i) {
+            if (i % 4 != bit) continue;
+            // alpha 通道值为 0, 表明水印中这里没有信息
+            // 如果原图中这里最后一位为 1, 改成 0, 表明没有信息
+            if (signd[i + offset] === 0 && (origind[i] % 2 === 1)) {
+                if (origind[i] === 255) --origind[i];
+                else ++origind[i];
+                continue;
+            }
+            // alpha 通道值为 1, 表明水印中这里有信息
+            // 如果原图中这里最后一位为 0, 改成 1, 表明有信息
+            if (signd[i + offset] !== 0 && (origind[i] % 2 === 0)) {
+                if (origind[i] === 255) --origind[i];
+                else ++origind[i];
+            }
+        }
+        ctxs[3].putImageData(origin, 0, 0);
+        // extract
+        for (let i = 0; i < origind.length; ++i) {
+            if (i % 4 != bit) {
+                // alpha
+                if (i % 4 == 3) continue;
+                origind[i] = 0;
+                continue;
+            }
+            // R
+            if (origind[i] % 2 === 0) origind[i] = 0;
+            else origind[i] = 255;
+        }
+        ctxs[4].putImageData(origin, 0, 0);
+    };
+</script>
+
+</html>;
