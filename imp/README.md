@@ -20,6 +20,12 @@ make
 
 而后在服务器中运行, 最方便的方式是 vscode 的 LiveServer 插件.
 
+**注意**: 以 make 命令生成的 **index.html 所在文件夹**为**根目录路径**!
+
+因为 index.html 中展示的图片路径是 ../img/gallary/, 如果 index.html 不在根目录就找不到图片.
+
+~~其实可以改, 但是...~~
+
 可以在 img/gallary 图片下放置自己的图片, 而后重新运行上述两条命令, 即可显示新的图片.
 
 具体请看 Makefile 文件.
